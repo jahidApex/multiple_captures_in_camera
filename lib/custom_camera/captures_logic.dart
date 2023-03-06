@@ -2,13 +2,13 @@ import 'dart:io';
 import 'package:get/get.dart';
 
 class CapturesLogic extends GetxController {
-  late final List<File> allFileList;
+  final Rx<List<File>> allFileList = Rx([]);
   var args = Get.arguments;
   var isLoading = true.obs;
   @override
   onReady() async {
     super.onReady();
-    allFileList = args["fileList"];
+    allFileList.value.addAll(args["fileList"]);
     isLoading.value = false;
   }
 

@@ -1,7 +1,5 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mime/mime.dart';
 import 'captures_logic.dart';
 
 class CapturesScreen extends StatelessWidget {
@@ -66,71 +64,58 @@ class CapturesScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: GridView.count(
-                            crossAxisSpacing: 8,
-                            shrinkWrap: true,
+                          padding: const EdgeInsets.all(16.0),
+                          child: GridView.builder(
                             physics: const NeverScrollableScrollPhysics(),
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 8,
-                            children: getFileListWithImageThumbnail(context)),
-                      ),
+                            shrinkWrap: true,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 4,
+                              crossAxisSpacing: 4,
+                            ),
+                            itemCount: controller.allFileList.value.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              var item = controller.allFileList.value[index];
+                              return Stack(
+                                children: [
+                                  Container(
+                                    width: 180,
+                                    height: 200,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Colors.black,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Image.file(
+                                      item,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.topLeft,
+                                    child: IconButton(
+                                      onPressed: () {
+                                        controller.allFileList.value
+                                            .removeAt(index);
+                                        controller.allFileList.refresh();
+                                      },
+                                      icon: const Icon(
+                                        Icons.cancel,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          )),
                     ],
                   );
           }),
         ),
       ),
     );
-  }
-
-  List<Widget> getFileListWithImageThumbnail(BuildContext context) {
-    List<Widget> widgets = [];
-    for (File file in controller.allFileList) {
-      widgets.add(
-        Container(
-          width: 160,
-          height: 160,
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.black,
-              width: 1,
-            ),
-          ),
-          child: Image.file(
-            file,
-            fit: BoxFit.cover,
-          ),
-        ),
-      );
-    }
-    return widgets;
-  }
-
-  List<Widget> getImage() {
-    List<Widget> widgets = [];
-    for (File aFile in controller.allFileList) {
-      String? fileDetails = lookupMimeType(aFile.path);
-      var fileType = fileDetails?.split('/');
-      if (fileType![0].contains("image")) {
-        widgets.add(
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.black,
-                width: 2,
-              ),
-            ),
-            child: InkWell(
-              onTap: () {},
-              child: Image.file(
-                aFile,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-        );
-      }
-    }
-    return widgets;
   }
 }
